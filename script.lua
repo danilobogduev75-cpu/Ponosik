@@ -7,6 +7,7 @@ task.spawn(function()
 	local Players = game:GetService("Players")
 	local RunService = game:GetService("RunService")
 	local UserInputService = game:GetService("UserInputService")
+	local Lighting = game:GetService("Lighting")
 	local LocalPlayer = Players.LocalPlayer
 
 	local playerGui = LocalPlayer:WaitForChild("PlayerGui", 10)
@@ -35,6 +36,59 @@ task.spawn(function()
 		end)
 	end
 
+	-- Функция для красивого интро (Welcome с блюром и анимацией обводки)
+	local function playWelcomeIntro()
+		-- Создаем размытие экрана (Blur)
+		local blur = Instance.new("BlurEffect")
+		blur.Size = 24
+		blur.Parent = Lighting
+
+		-- Контейнер для интро
+		local introGui = Instance.new("ScreenGui")
+		introGui.Name = "WelcomeIntro"
+		introGui.IgnoreGuiInset = true
+		introGui.Parent = playerGui
+
+		local textLabel = Instance.new("TextLabel")
+		textLabel.Size = UDim2.new(1, 0, 1, 0)
+		textLabel.BackgroundTransparency = 1
+		textLabel.Text = "Welcome"
+		textLabel.Font = Enum.Font.FredokaOne
+		textLabel.TextSize = 60
+		textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		textLabel.TextStrokeTransparency = 0 -- Включаем стандартную обводку
+		textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+		textLabel.Parent = introGui
+
+		-- Плавная анимация: держим 5 секунд, затем плавно гасим и блюр, и текст
+		task.spawn(function()
+			local startTime = tick()
+			local duration = 5.0 -- 5 секунд
+
+			while tick() - startTime < duration do
+				-- Эффект погони обводки: меняем цвет обводки по кругу (чёрный/белый/цветной)
+				local t = (tick() - startTime) * 3
+				local r = math.abs(math.sin(t))
+				textLabel.TextStrokeColor3 = Color3.fromRGB(r * 50, r * 50, r * 50)
+				RunService.RenderStepped:Wait()
+			end
+
+			-- Плавное исчезновение (fade out)
+			local fadeDuration = 1.0
+			local fadeStart = tick()
+			while tick() - fadeStart < fadeDuration do
+				local alpha = (tick() - fadeStart) / fadeDuration
+				textLabel.TextTransparency = alpha
+				textLabel.TextStrokeTransparency = alpha
+				blur.Size = 24 * (1 - alpha)
+				RunService.RenderStepped:Wait()
+			end
+
+			introGui:Destroy()
+			blur:Destroy()
+		end)
+	end
+
 	-- Окно ввода ключа (Key System)
 	local keyFrame = Instance.new("Frame")
 	keyFrame.Size = UDim2.new(0, 300, 0, 160)
@@ -51,8 +105,9 @@ task.spawn(function()
 
 	local keyTitle = Instance.new("TextLabel")
 	keyTitle.Size = UDim2.new(1, 0, 0, 40)
+	keyTitle.Position = UDim2.new(0, 0, 0, 5)
 	keyTitle.BackgroundTransparency = 1
-	keyTitle.Text = "🔑 Введите ключ (free)"
+	keyTitle.Text = "🔑 Введите ключ доступа"
 	keyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 	keyTitle.Font = Enum.Font.GothamBold
 	keyTitle.TextSize = 14
@@ -63,7 +118,7 @@ task.spawn(function()
 	keyBox.Position = UDim2.new(0, 20, 0, 50)
 	keyBox.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 	keyBox.Text = ""
-	keyBox.PlaceholderText = "Введите 'free'..."
+	keyBox.PlaceholderText = "Введите ключ..."
 	keyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 	keyBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
 	keyBox.Font = Enum.Font.Gotham
@@ -84,12 +139,12 @@ task.spawn(function()
 	
 	Instance.new("UICorner", submitBtn).CornerRadius = UDim.new(0, 8)
 
-	-- Главное меню
+	-- Главное меню (с иконкой черепа 💀)
 	local iconBtn = Instance.new("TextButton")
 	iconBtn.Size = UDim2.new(0, 50, 0, 50)
 	iconBtn.Position = UDim2.new(0, 30, 0, 100)
 	iconBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-	iconBtn.Text = "⭐"
+	iconBtn.Text = "💀"
 	iconBtn.TextSize = 26
 	iconBtn.Active = true
 	iconBtn.Draggable = true
@@ -101,8 +156,8 @@ task.spawn(function()
 	applyRGB(iconStroke)
 
 	local mainFrame = Instance.new("Frame")
-	mainFrame.Size = UDim2.new(0, 280, 0, 410)
-	mainFrame.Position = UDim2.new(0.5, -140, 0.5, -205)
+	mainFrame.Size = UDim2.new(0, 280, 0, 335)
+	mainFrame.Position = UDim2.new(0.5, -140, 0.5, -167)
 	mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 	mainFrame.BorderSizePixel = 0
 	mainFrame.Active = true
@@ -114,44 +169,12 @@ task.spawn(function()
 	local mainStroke = Instance.new("UIStroke", mainFrame, {Thickness = 2})
 	applyRGB(mainStroke)
 
-	-- Эффект падающего снега в меню
-	local snowContainer = Instance.new("Frame", mainFrame)
-	snowContainer.Size = UDim2.new(1, 0, 1, 0)
-	snowContainer.BackgroundTransparency = 1
-	snowContainer.ZIndex = 0
-
-	task.spawn(function()
-		while true do
-			if mainFrame.Visible then
-				local flake = Instance.new("TextLabel", snowContainer)
-				flake.Text = "❄"
-				flake.TextSize = math.random(10, 18)
-				flake.TextColor3 = Color3.fromRGB(255, 255, 255)
-				flake.BackgroundTransparency = 1
-				flake.Position = UDim2.new(math.random(), 0, -0.1, 0)
-				flake.ZIndex = 0
-
-				task.spawn(function()
-					local duration = math.random(3, 6)
-					local startTime = tick()
-					local startX = flake.Position.X.Scale
-					while tick() - startTime < duration and flake.Parent do
-						local alpha = (tick() - startTime) / duration
-						flake.Position = UDim2.new(startX + math.sin(alpha * 10) * 0.05, 0, alpha, 0)
-						RunService.RenderStepped:Wait()
-					end
-					flake:Destroy()
-				end)
-			end
-			task.wait(0.3)
-		end
-	end)
-
 	-- Проверка ключа
 	submitBtn.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			if keyBox.Text == SECRET_KEY then
 				keyFrame:Destroy()
+				playWelcomeIntro() -- Запускаем крутое интро
 				iconBtn.Visible = true
 				mainFrame.Visible = true
 			else
@@ -180,38 +203,38 @@ task.spawn(function()
 
 	-- Кнопка Safe Fly
 	local flyBtn = Instance.new("TextButton", mainFrame)
-	flyBtn.Size = UDim2.new(1, -20, 0, 40)
-	flyBtn.Position = UDim2.new(0, 10, 0, 45)
+	flyBtn.Size = UDim2.new(1, -20, 0, 38)
+	flyBtn.Position = UDim2.new(0, 10, 0, 42)
 	flyBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
 	flyBtn.Text = "Safe Fly (F): [OFF]"
 	flyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	flyBtn.Font = Enum.Font.GothamBold
-	flyBtn.TextSize = 14
+	flyBtn.TextSize = 13
 	flyBtn.ZIndex = 2
 	Instance.new("UICorner", flyBtn).CornerRadius = UDim.new(0, 8)
 
-	-- Ноуклип (Режим тарана стен)
-	local noclipActive = false
-	local noclipBtn = Instance.new("TextButton", mainFrame)
-	noclipBtn.Size = UDim2.new(1, -20, 0, 35)
-	noclipBtn.Position = UDim2.new(0, 10, 0, 95)
-	noclipBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
-	noclipBtn.Text = "Нормальный Ноуклип: [ВЫКЛ]"
-	noclipBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	noclipBtn.Font = Enum.Font.GothamBold
-	noclipBtn.TextSize = 11
-	noclipBtn.ZIndex = 2
-	Instance.new("UICorner", noclipBtn).CornerRadius = UDim.new(0, 8)
+	-- Коллизия (Collision) — бывший ноуклип
+	local collisionActive = false
+	local collisionBtn = Instance.new("TextButton", mainFrame)
+	collisionBtn.Size = UDim2.new(1, -20, 0, 35)
+	collisionBtn.Position = UDim2.new(0, 10, 0, 85)
+	collisionBtn.BackgroundColor3 = Color3.fromRGB(40, 120, 70)
+	collisionBtn.Text = "Collision: [ON]"
+	collisionBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	collisionBtn.Font = Enum.Font.GothamBold
+	collisionBtn.TextSize = 11
+	collisionBtn.ZIndex = 2
+	Instance.new("UICorner", collisionBtn).CornerRadius = UDim.new(0, 8)
 
-	noclipBtn.InputBegan:Connect(function(input)
+	collisionBtn.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			noclipActive = not noclipActive
-			if noclipActive then
-				noclipBtn.Text = "Нормальный Ноуклип: [ВКЛ]"
-				noclipBtn.BackgroundColor3 = Color3.fromRGB(40, 120, 70)
+			collisionActive = not collisionActive
+			if collisionActive then
+				collisionBtn.Text = "Collision: [ON]"
+				collisionBtn.BackgroundColor3 = Color3.fromRGB(40, 120, 70)
 			else
-				noclipBtn.Text = "Нормальный Ноуклип: [ВЫКЛ]"
-				noclipBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
+				collisionBtn.Text = "Collision: [OFF]"
+				collisionBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
 			end
 		end
 	end)
@@ -221,7 +244,7 @@ task.spawn(function()
 
 	local speedLabel = Instance.new("TextLabel", mainFrame)
 	speedLabel.Size = UDim2.new(1, -20, 0, 20)
-	speedLabel.Position = UDim2.new(0, 10, 0, 138)
+	speedLabel.Position = UDim2.new(0, 10, 0, 125)
 	speedLabel.BackgroundTransparency = 1
 	speedLabel.Text = "Скорость: 50 (до 1000)"
 	speedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -231,24 +254,24 @@ task.spawn(function()
 	speedLabel.ZIndex = 2
 
 	local speedMinus = Instance.new("TextButton", mainFrame)
-	speedMinus.Size = UDim2.new(0, 120, 0, 30)
-	speedMinus.Position = UDim2.new(0, 10, 0, 162)
+	speedMinus.Size = UDim2.new(0, 120, 0, 28)
+	speedMinus.Position = UDim2.new(0, 10, 0, 148)
 	speedMinus.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
 	speedMinus.Text = "- 50"
 	speedMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
 	speedMinus.Font = Enum.Font.GothamBold
-	speedMinus.TextSize = 12
+	speedMinus.TextSize = 11
 	speedMinus.ZIndex = 2
 	Instance.new("UICorner", speedMinus).CornerRadius = UDim.new(0, 6)
 
 	local speedPlus = Instance.new("TextButton", mainFrame)
-	speedPlus.Size = UDim2.new(0, 120, 0, 30)
-	speedPlus.Position = UDim2.new(0, 150, 0, 162)
+	speedPlus.Size = UDim2.new(0, 120, 0, 28)
+	speedPlus.Position = UDim2.new(0, 150, 0, 148)
 	speedPlus.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
 	speedPlus.Text = "+ 50"
 	speedPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
 	speedPlus.Font = Enum.Font.GothamBold
-	speedPlus.TextSize = 12
+	speedPlus.TextSize = 11
 	speedPlus.ZIndex = 2
 	Instance.new("UICorner", speedPlus).CornerRadius = UDim.new(0, 6)
 
@@ -268,8 +291,8 @@ task.spawn(function()
 
 	-- Текст ПК
 	local pcInfo = Instance.new("TextLabel", mainFrame)
-	pcInfo.Size = UDim2.new(1, -20, 0, 40)
-	pcInfo.Position = UDim2.new(0, 10, 0, 202)
+	pcInfo.Size = UDim2.new(1, -20, 0, 32)
+	pcInfo.Position = UDim2.new(0, 10, 0, 182)
 	pcInfo.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 	pcInfo.Text = "💻 ПК: WASD | E (Вверх) | Q (Вниз) | F (Бинд)"
 	pcInfo.TextColor3 = Color3.fromRGB(170, 170, 190)
@@ -280,15 +303,33 @@ task.spawn(function()
 
 	-- Кнопка мобильного пульта
 	local mobGuiBtn = Instance.new("TextButton", mainFrame)
-	mobGuiBtn.Size = UDim2.new(1, -20, 0, 40)
-	mobGuiBtn.Position = UDim2.new(0, 10, 0, 252)
+	mobGuiBtn.Size = UDim2.new(1, -20, 0, 35)
+	mobGuiBtn.Position = UDim2.new(0, 10, 0, 222)
 	mobGuiBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
 	mobGuiBtn.Text = "Мобильный пульт WASD: [ВКЛ]"
 	mobGuiBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	mobGuiBtn.Font = Enum.Font.GothamBold
-	mobGuiBtn.TextSize = 12
+	mobGuiBtn.TextSize = 11
 	mobGuiBtn.ZIndex = 2
 	Instance.new("UICorner", mobGuiBtn).CornerRadius = UDim.new(0, 8)
+
+	-- Кнопка закрытия/скрытия меню снизу
+	local closeBtn = Instance.new("TextButton", mainFrame)
+	closeBtn.Size = UDim2.new(1, -20, 0, 32)
+	closeBtn.Position = UDim2.new(0, 10, 0, 264)
+	closeBtn.BackgroundColor3 = Color3.fromRGB(70, 40, 40)
+	closeBtn.Text = "Свернуть меню"
+	closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	closeBtn.Font = Enum.Font.GothamBold
+	closeBtn.TextSize = 11
+	closeBtn.ZIndex = 2
+	Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 8)
+
+	closeBtn.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			mainFrame.Visible = false
+		end
+	end)
 
 	-- Мобильный пульт
 	local mobileControlGui = Instance.new("Frame", screenGui)
@@ -413,7 +454,7 @@ task.spawn(function()
 		end
 	end)
 
-	-- Улучшенный ноуклип для машин и игрока
+	-- Логика коллизии (Collision)
 	RunService.Stepped:Connect(function()
 		local char = LocalPlayer.Character
 		if char then
@@ -426,7 +467,7 @@ task.spawn(function()
 				end
 			end
 
-			if noclipActive then
+			if not collisionActive then
 				if vehicleModel then
 					for _, part in ipairs(vehicleModel:GetDescendants()) do
 						if part:IsA("BasePart") then
