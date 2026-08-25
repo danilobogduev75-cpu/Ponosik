@@ -1,6 +1,6 @@
 -- ==========================================
 -- НАСТРОЙКА КЛЮЧА И НАЗВАНИЯ
-local SECRET_KEY = "zolo"
+local SECRET_KEY = "Zolo"
 -- ==========================================
 
 task.spawn(function()
@@ -227,7 +227,7 @@ task.spawn(function()
 	flyBtn.ZIndex = 2
 	Instance.new("UICorner", flyBtn).CornerRadius = UDim.new(0, 8)
 
-	-- Коллизия (Collision)
+	-- Функция применения коллизии без дергания (срабатывает при клике)
 	local collisionActive = false
 	local collisionBtn = Instance.new("TextButton", mainFrame)
 	collisionBtn.Size = UDim2.new(1, -20, 0, 35)
@@ -240,6 +240,44 @@ task.spawn(function()
 	collisionBtn.ZIndex = 2
 	Instance.new("UICorner", collisionBtn).CornerRadius = UDim.new(0, 8)
 
+	local function updateCollision(state)
+		local char = LocalPlayer.Character
+		if char then
+			local humanoid = char:FindFirstChildOfClass("Humanoid")
+			local vehicleModel = nil
+
+			if humanoid and humanoid.SeatPart and humanoid.SeatPart.Parent then
+				if humanoid.SeatPart.Parent:IsA("Model") then
+					vehicleModel = humanoid.SeatPart.Parent
+				end
+			end
+
+			if state then
+				-- ВКЛ (сквозь стены)
+				if vehicleModel then
+					for _, part in ipairs(vehicleModel:GetDescendants()) do
+						if part:IsA("BasePart") then part.CanCollide = false end
+					end
+				else
+					for _, part in ipairs(char:GetDescendants()) do
+						if part:IsA("BasePart") then part.CanCollide = false end
+					end
+				end
+			else
+				-- ВЫКЛ (обычный режим)
+				if vehicleModel then
+					for _, part in ipairs(vehicleModel:GetDescendants()) do
+						if part:IsA("BasePart") then part.CanCollide = true end
+					end
+				else
+					for _, part in ipairs(char:GetDescendants()) do
+						if part:IsA("BasePart") then part.CanCollide = true end
+					end
+				end
+			end
+		end
+	end
+
 	collisionBtn.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			collisionActive = not collisionActive
@@ -250,6 +288,7 @@ task.spawn(function()
 				collisionBtn.Text = "Collision: [OFF]"
 				collisionBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
 			end
+			updateCollision(collisionActive)
 		end
 	end)
 
@@ -327,12 +366,12 @@ task.spawn(function()
 	mobGuiBtn.ZIndex = 2
 	Instance.new("UICorner", mobGuiBtn).CornerRadius = UDim.new(0, 8)
 
-	-- Кнопка открытия меню MORE (вместо свертывания)
+	-- Кнопка открытия меню MORE
 	local moreBtn = Instance.new("TextButton", mainFrame)
 	moreBtn.Size = UDim2.new(1, -20, 0, 32)
 	moreBtn.Position = UDim2.new(0, 10, 0, 264)
 	moreBtn.BackgroundColor3 = Color3.fromRGB(50, 40, 80)
-	moreBtn.Text = "More ➔"
+	moreBtn.Text = "More >>"
 	moreBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	moreBtn.Font = Enum.Font.GothamBold
 	moreBtn.TextSize = 11
@@ -343,14 +382,14 @@ task.spawn(function()
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			moreFrame.Visible = not moreFrame.Visible
 			if moreFrame.Visible then
-				moreBtn.Text = "More ⬅"
+				moreBtn.Text = "More <<"
 			else
-				moreBtn.Text = "More ➔"
+				moreBtn.Text = "More >>"
 			end
 		end
 	end)
 
-	-- Наполнение меню MORE (ESP подсветка игроков)
+	-- Наполнение меню MORE (ESP)
 	local moreTitle = Instance.new("TextLabel", moreFrame)
 	moreTitle.Size = UDim2.new(1, 0, 0, 35)
 	moreTitle.Position = UDim2.new(0, 0, 0, 5)
@@ -373,7 +412,6 @@ task.spawn(function()
 	espBtn.ZIndex = 2
 	Instance.new("UICorner", espBtn).CornerRadius = UDim.new(0, 8)
 
-	-- Инфо о цветах команд
 	local infoEsp = Instance.new("TextLabel", moreFrame)
 	infoEsp.Size = UDim2.new(1, -20, 0, 130)
 	infoEsp.Position = UDim2.new(0, 10, 0, 95)
@@ -385,21 +423,19 @@ task.spawn(function()
 	infoEsp.ZIndex = 2
 	Instance.new("UICorner", infoEsp).CornerRadius = UDim.new(0, 8)
 
-	-- Функция определения цвета команды игрока
 	local function getTeamColor(player)
 		local teamName = player.Team and player.Team.Name:lower() or ""
 		if string.find(teamName, "police") or string.find(teamName, "cop") or string.find(teamName, "policía") then
-			return Color3.fromRGB(0, 120, 255) -- Синий
+			return Color3.fromRGB(0, 120, 255)
 		elseif string.find(teamName, "criminal") or string.find(teamName, "crim") or string.find(teamName, "prisoner") then
-			return Color3.fromRGB(255, 140, 0) -- Оранжевый
+			return Color3.fromRGB(255, 140, 0)
 		elseif string.find(teamName, "border") or string.find(teamName, "patrol") then
-			return Color3.fromRGB(255, 220, 0) -- Желтый
+			return Color3.fromRGB(255, 220, 0)
 		else
-			return Color3.fromRGB(0, 255, 100) -- Зеленый (Civilian)
+			return Color3.fromRGB(0, 255, 100)
 		end
 	end
 
-	-- Логика выдачи Highlight для ESP
 	local activeHighlights = {}
 
 	local function updateEsp()
@@ -416,7 +452,6 @@ task.spawn(function()
 						hl.Parent = char
 						activeHighlights[player] = hl
 					end
-					-- Обновляем цвет под команду
 					local hl = activeHighlights[player]
 					if hl and hl.Parent then
 						local col = getTeamColor(player)
@@ -442,7 +477,6 @@ task.spawn(function()
 			else
 				espBtn.Text = "Player ESP: [OFF]"
 				espBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
-				-- Удаляем все подсветки при выключении
 				for p, hl in pairs(activeHighlights) do
 					if hl then hl:Destroy() end
 				end
@@ -577,45 +611,6 @@ task.spawn(function()
 	UserInputService.InputBegan:Connect(function(input, gameProcessed)
 		if not gameProcessed and input.KeyCode == Enum.KeyCode.F then
 			toggleFly()
-		end
-	end)
-
-	-- Логика коллизии (Collision)
-	RunService.Stepped:Connect(function()
-		local char = LocalPlayer.Character
-		if char then
-			local humanoid = char:FindFirstChildOfClass("Humanoid")
-			local vehicleModel = nil
-
-			if humanoid and humanoid.SeatPart and humanoid.SeatPart.Parent then
-				if humanoid.SeatPart.Parent:IsA("Model") then
-					vehicleModel = humanoid.SeatPart.Parent
-				end
-			end
-
-			if not collisionActive then
-				if vehicleModel then
-					for _, part in ipairs(vehicleModel:GetDescendants()) do
-						if part:IsA("BasePart") then
-							part.CanCollide = false
-						end
-					end
-				else
-					for _, part in ipairs(char:GetDescendants()) do
-						if part:IsA("BasePart") then
-							part.CanCollide = false
-						end
-					end
-				end
-			else
-				if not vehicleModel then
-					for _, part in ipairs(char:GetDescendants()) do
-						if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-							part.CanCollide = true
-						end
-					end
-				end
-			end
 		end
 	end)
 
