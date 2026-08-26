@@ -84,7 +84,6 @@ task.spawn(function()
 	Instance.new("UICorner", keyFrame).CornerRadius = UDim.new(0, 12)
 	applyRGB(Instance.new("UIStroke", keyFrame, {Thickness = 2}))
 
-	-- Заголовок окна ключа (как на твоем скриншоте)
 	local keyTitle = Instance.new("TextLabel")
 	keyTitle.Size = UDim2.new(1, 0, 0, 40)
 	keyTitle.Position = UDim2.new(0, 0, 0, 10)
@@ -145,10 +144,10 @@ task.spawn(function()
 	Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
 	applyRGB(Instance.new("UIStroke", mainFrame, {Thickness = 2}))
 
-	-- Панель More (ESP + Aimbot с настройкой сенсы и NPC)
+	-- Компактная правая панель More (высота значительно уменьшена)
 	local moreFrame = Instance.new("Frame")
-	moreFrame.Size = UDim2.new(0, 280, 0, 345)
-	moreFrame.Position = UDim2.new(0.5, 150, 0.5, -167)
+	moreFrame.Size = UDim2.new(0, 210, 0, 320)
+	moreFrame.Position = UDim2.new(0.5, 115, 0.5, -160)
 	moreFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 	moreFrame.BorderSizePixel = 0
 	moreFrame.Active = true
@@ -179,7 +178,6 @@ task.spawn(function()
 		end
 	end)
 
-	-- Заголовок главного меню
 	local titleLabel = Instance.new("TextLabel", mainFrame)
 	titleLabel.Size = UDim2.new(1, 0, 0, 35)
 	titleLabel.Position = UDim2.new(0, 0, 0, 5)
@@ -190,7 +188,6 @@ task.spawn(function()
 	titleLabel.TextSize = 13
 	titleLabel.ZIndex = 2
 
-	-- Кнопка Safe Fly
 	local flyBtn = Instance.new("TextButton", mainFrame)
 	flyBtn.Size = UDim2.new(1, -20, 0, 38)
 	flyBtn.Position = UDim2.new(0, 10, 0, 42)
@@ -202,7 +199,6 @@ task.spawn(function()
 	flyBtn.ZIndex = 2
 	Instance.new("UICorner", flyBtn).CornerRadius = UDim.new(0, 8)
 
-	-- Кнопка Collision
 	local collisionActive = false
 	local collisionBtn = Instance.new("TextButton", mainFrame)
 	collisionBtn.Size = UDim2.new(1, -20, 0, 35)
@@ -239,7 +235,6 @@ task.spawn(function()
 		end
 	end)
 
-	-- Скорость
 	local currentSpeed = 50
 	local speedLabel = Instance.new("TextLabel", mainFrame)
 	speedLabel.Size = UDim2.new(1, -20, 0, 20)
@@ -323,38 +318,33 @@ task.spawn(function()
 	end)
 
 	-- ==========================================
-	-- МЕНЮ MORE (ESP + AIMBOT С СЕНСОЙ И NPC)
+	-- КОМПАКТНОЕ МЕНЮ MORE (ESP + AIMBOT + СЛАЙДЕРЫ)
 	-- ==========================================
 	local moreTitle = Instance.new("TextLabel", moreFrame)
-	moreTitle.Size = UDim2.new(1, 0, 0, 30)
-	moreTitle.Position = UDim2.new(0, 0, 0, 5)
+	moreTitle.Size = UDim2.new(1, 0, 0, 20)
+	moreTitle.Position = UDim2.new(0, 0, 0, 4)
 	moreTitle.BackgroundTransparency = 1
-	moreTitle.Text = "👁️ ESP & Aimbot (Players + NPCs)"
+	moreTitle.Text = "👁️ ESP & Aimbot"
 	moreTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 	moreTitle.Font = Enum.Font.GothamBold
-	moreTitle.TextSize = 11
+	moreTitle.TextSize = 10
 
-	-- Кнопка ESP
 	local espActive = false
 	local espBtn = Instance.new("TextButton", moreFrame)
-	espBtn.Size = UDim2.new(1, -20, 0, 30)
-	espBtn.Position = UDim2.new(0, 10, 0, 38)
+	espBtn.Size = UDim2.new(1, -16, 0, 22)
+	espBtn.Position = UDim2.new(0, 8, 0, 26)
 	espBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
 	espBtn.Text = "Player ESP: [OFF]"
 	espBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	espBtn.Font = Enum.Font.GothamBold
-	espBtn.TextSize = 11
-	Instance.new("UICorner", espBtn).CornerRadius = UDim.new(0, 8)
+	espBtn.TextSize = 9
+	Instance.new("UICorner", espBtn).CornerRadius = UDim.new(0, 5)
 
 	local function getTeamColor(player)
 		if not player or not player.Team then return Color3.fromRGB(0, 255, 100) end
 		local tName = player.Team.Name:lower()
 		if string.find(tName, "police") or string.find(tName, "cop") then return Color3.fromRGB(0, 120, 255)
 		elseif string.find(tName, "crim") or string.find(tName, "prisoner") then return Color3.fromRGB(255, 140, 0)
-		elseif string.find(tName, "border") then return Color3.fromRGB(255, 220, 0)
-		elseif string.find(tName, "fbi") then return Color3.fromRGB(80, 80, 255)
-		elseif string.find(tName, "swat") then return Color3.fromRGB(40, 40, 90)
-		elseif string.find(tName, "army") or string.find(tName, "military") then return Color3.fromRGB(75, 140, 75)
 		else return Color3.fromRGB(0, 255, 100) end
 	end
 
@@ -391,223 +381,228 @@ task.spawn(function()
 		end
 	end)
 
-	-- AIMBOT
+	-- НАСТРОЙКИ АИМБОТА
 	local aimbotActive = false
-	local followMouseMode = false
-	local fovRadius = 140
-	local aimSmooth = 5
+	local wallCheckActive = true 
+	local teamCheckActive = true 
+	local fovRadius = 150
+	local maxAimDistance = 500
+	local aimSensitivity = 0.2
 	local camera = workspace.CurrentCamera
 
-	local aimBtn = Instance.new("TextButton", moreFrame)
-	aimBtn.Size = UDim2.new(1, -20, 0, 30)
-	aimBtn.Position = UDim2.new(0, 10, 0, 73)
-	aimBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
-	aimBtn.Text = "Aimbot: [OFF]"
-	aimBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	aimBtn.Font = Enum.Font.GothamBold
-	aimBtn.TextSize = 11
-	Instance.new("UICorner", aimBtn).CornerRadius = UDim.new(0, 8)
-
-	-- Настройка чувствительности (Smooth)
-	local smoothLabel = Instance.new("TextLabel", moreFrame)
-	smoothLabel.Size = UDim2.new(1, -20, 0, 16)
-	smoothLabel.Position = UDim2.new(0, 10, 0, 108)
-	smoothLabel.BackgroundTransparency = 1
-	smoothLabel.Text = "Aim Smooth (Sens): 5 (1=Fast, 10=Slow)"
-	smoothLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
-	smoothLabel.Font = Enum.Font.GothamBold
-	smoothLabel.TextSize = 9
-	smoothLabel.TextXAlignment = Enum.TextXAlignment.Left
-
-	local smoothMinus = Instance.new("TextButton", moreFrame)
-	smoothMinus.Size = UDim2.new(0, 120, 0, 24)
-	smoothMinus.Position = UDim2.new(0, 10, 0, 126)
-	smoothMinus.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-	smoothMinus.Text = "- Sens"
-	smoothMinus.TextColor3 = Color3.fromRGB(255, 255, 255)
-	smoothMinus.Font = Enum.Font.GothamBold
-	smoothMinus.TextSize = 10
-	Instance.new("UICorner", smoothMinus).CornerRadius = UDim.new(0, 6)
-
-	local smoothPlus = Instance.new("TextButton", moreFrame)
-	smoothPlus.Size = UDim2.new(0, 120, 0, 24)
-	smoothPlus.Position = UDim2.new(0, 150, 0, 126)
-	smoothPlus.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-	smoothPlus.Text = "+ Sens"
-	smoothPlus.TextColor3 = Color3.fromRGB(255, 255, 255)
-	smoothPlus.Font = Enum.Font.GothamBold
-	smoothPlus.TextSize = 10
-	Instance.new("UICorner", smoothPlus).CornerRadius = UDim.new(0, 6)
-
-	smoothMinus.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			aimSmooth = math.clamp(aimSmooth - 1, 1, 20)
-			smoothLabel.Text = "Aim Smooth (Sens): " .. aimSmooth
-		end
-	end)
-
-	smoothPlus.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			aimSmooth = math.clamp(aimSmooth + 1, 1, 20)
-			smoothLabel.Text = "Aim Smooth (Sens): " .. aimSmooth
-		end
-	end)
-
-	-- Кнопка режима (Центр / Мышь)
-	local modeBtn = Instance.new("TextButton", moreFrame)
-	modeBtn.Size = UDim2.new(1, -20, 0, 30)
-	modeBtn.Position = UDim2.new(0, 10, 0, 155)
-	modeBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-	modeBtn.Text = "Aim Mode: [Center / Phone]"
-	modeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	modeBtn.Font = Enum.Font.GothamBold
-	modeBtn.TextSize = 10
-	Instance.new("UICorner", modeBtn).CornerRadius = UDim.new(0, 8)
-
-	-- FOV Круг
+	-- КРУГ (FOV CIRCLE) ПО ЦЕНТРУ ЭКРАНА
 	local fovGui = Instance.new("Frame", screenGui)
 	fovGui.Size = UDim2.new(0, fovRadius * 2, 0, fovRadius * 2)
 	fovGui.AnchorPoint = Vector2.new(0.5, 0.5)
+	fovGui.Position = UDim2.new(0.5, 0, 0.5, 0)
 	fovGui.BackgroundTransparency = 1
 	fovGui.Visible = false
-	Instance.new("UIStroke", fovGui, {Thickness = 1.5, Color = Color3.fromRGB(255, 255, 255)})
+	local fovStroke = Instance.new("UIStroke", fovGui, {Thickness = 1.5, Color = Color3.fromRGB(255, 255, 255)})
 	Instance.new("UICorner", fovGui).CornerRadius = UDim.new(1, 0)
 
-	local function toggleAimMode()
-		followMouseMode = not followMouseMode
-		if followMouseMode then
-			modeBtn.Text = "Aim Mode: [Mouse / PC (G)]"
-			modeBtn.BackgroundColor3 = Color3.fromRGB(80, 50, 120)
-		else
-			modeBtn.Text = "Aim Mode: [Center / Phone (G)]"
-			modeBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-		end
-	end
+	local aimBtn = Instance.new("TextButton", moreFrame)
+	aimBtn.Size = UDim2.new(1, -16, 0, 22)
+	aimBtn.Position = UDim2.new(0, 8, 0, 51)
+	aimBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
+	aimBtn.Text = "Aimbot (Head): [OFF]"
+	aimBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	aimBtn.Font = Enum.Font.GothamBold
+	aimBtn.TextSize = 9
+	Instance.new("UICorner", aimBtn).CornerRadius = UDim.new(0, 5)
 
-	modeBtn.InputBegan:Connect(function(input)
+	-- КНОПКА TEAM CHECK
+	local teamCheckBtn = Instance.new("TextButton", moreFrame)
+	teamCheckBtn.Size = UDim2.new(1, -16, 0, 20)
+	teamCheckBtn.Position = UDim2.new(0, 8, 0, 76)
+	teamCheckBtn.BackgroundColor3 = Color3.fromRGB(40, 120, 70)
+	teamCheckBtn.Text = "Team Check: [ON]"
+	teamCheckBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	teamCheckBtn.Font = Enum.Font.GothamBold
+	teamCheckBtn.TextSize = 9
+	Instance.new("UICorner", teamCheckBtn).CornerRadius = UDim.new(0, 5)
+
+	teamCheckBtn.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			toggleAimMode()
+			teamCheckActive = not teamCheckActive
+			teamCheckBtn.Text = teamCheckActive and "Team Check: [ON]" or "Team Check: [OFF]"
+			teamCheckBtn.BackgroundColor3 = teamCheckActive and Color3.fromRGB(40, 120, 70) or Color3.fromRGB(120, 40, 40)
 		end
 	end)
 
-	UserInputService.InputBegan:Connect(function(input, gp)
-		if not gp and input.KeyCode == Enum.KeyCode.G then
-			toggleAimMode()
+	-- КНОПКА WALL CHECK
+	local wallCheckBtn = Instance.new("TextButton", moreFrame)
+	wallCheckBtn.Size = UDim2.new(1, -16, 0, 20)
+	wallCheckBtn.Position = UDim2.new(0, 8, 0, 99)
+	wallCheckBtn.BackgroundColor3 = Color3.fromRGB(40, 120, 70)
+	wallCheckBtn.Text = "Wall Check: [ON]"
+	wallCheckBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	wallCheckBtn.Font = Enum.Font.GothamBold
+	wallCheckBtn.TextSize = 9
+	Instance.new("UICorner", wallCheckBtn).CornerRadius = UDim.new(0, 5)
+
+	wallCheckBtn.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			wallCheckActive = not wallCheckActive
+			wallCheckBtn.Text = wallCheckActive and "Wall Check: [ON]" or "Wall Check: [OFF]"
+			wallCheckBtn.BackgroundColor3 = wallCheckActive and Color3.fromRGB(40, 120, 70) or Color3.fromRGB(120, 40, 40)
 		end
+	end)
+
+	-- ФУНКЦИЯ СОЗДАНИЯ УДОБНОГО ПОЛЗУНКА (СЛАЙДЕРА)
+	local function createSlider(name, minVal, maxVal, startVal, yPos, callback)
+		local label = Instance.new("TextLabel", moreFrame)
+		label.Size = UDim2.new(1, -16, 0, 14)
+		label.Position = UDim2.new(0, 8, 0, yPos)
+		label.BackgroundTransparency = 1
+		label.Text = name .. ": " .. tostring(startVal)
+		label.TextColor3 = Color3.fromRGB(200, 200, 220)
+		label.Font = Enum.Font.GothamBold
+		label.TextSize = 8
+		label.TextXAlignment = Enum.TextXAlignment.Left
+
+		local bgBar = Instance.new("Frame", moreFrame)
+		bgBar.Size = UDim2.new(1, -16, 0, 10)
+		bgBar.Position = UDim2.new(0, 8, 0, yPos + 14)
+		bgBar.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+		bgBar.BorderSizePixel = 0
+		Instance.new("UICorner", bgBar).CornerRadius = UDim.new(1, 0)
+
+		local fillBar = Instance.new("Frame", bgBar)
+		fillBar.Size = UDim2.new((startVal - minVal) / (maxVal - minVal), 0, 1, 0)
+		fillBar.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
+		fillBar.BorderSizePixel = 0
+		Instance.new("UICorner", fillBar).CornerRadius = UDim.new(1, 0)
+
+		local dragging = false
+		local function updateInput(input)
+			local pos = math.clamp((input.Position.X - bgBar.AbsolutePosition.X) / bgBar.AbsoluteSize.X, 0, 1)
+			local val = math.floor(minVal + (maxVal - minVal) * pos)
+			fillBar.Size = UDim2.new(pos, 0, 1, 0)
+			label.Text = name .. ": " .. tostring(val)
+			callback(val)
+		end
+
+		bgBar.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				dragging = true
+				updateInput(input)
+			end
+		end)
+
+		UserInputService.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				dragging = false
+			end
+		end)
+
+		UserInputService.InputChanged:Connect(function(input)
+			if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+				updateInput(input)
+			end
+		end)
+	end
+
+	-- Слайдеры взамен кнопок
+	createSlider("FOV Radius", 25, 400, fovRadius, 122, function(val)
+		fovRadius = val
+		fovGui.Size = UDim2.new(0, fovRadius * 2, 0, fovRadius * 2)
+	end)
+
+	createSlider("Aim Smooth (x100)", 2, 100, math.floor(aimSensitivity * 100), 162, function(val)
+		aimSensitivity = val / 100
+	end)
+
+	createSlider("Max Distance", 50, 2000, maxAimDistance, 202, function(val)
+		maxAimDistance = val
 	end)
 
 	aimBtn.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			aimbotActive = not aimbotActive
 			fovGui.Visible = aimbotActive
-			aimBtn.Text = aimbotActive and "Aimbot: [ON]" or "Aimbot: [OFF]"
+			aimBtn.Text = aimbotActive and "Aimbot (Head): [ON]" or "Aimbot (Head): [OFF]"
 			aimBtn.BackgroundColor3 = aimbotActive and Color3.fromRGB(40, 120, 70) or Color3.fromRGB(120, 40, 40)
 		end
 	end)
 
-	local function isEnemyPlayer(player)
-		if player == LocalPlayer then return false end
-		if not player.Team or not LocalPlayer.Team then return true end
-		local myTeam = LocalPlayer.Team.Name:lower()
-		local pTeam = player.Team.Name:lower()
-		if myTeam == pTeam then return false end
-		if string.find(myTeam, "civilian") or string.find(myTeam, "citizen") then return true end
-		local isMyGov = string.find(myTeam, "police") or string.find(myTeam, "cop") or string.find(myTeam, "fbi") or string.find(myTeam, "swat") or string.find(myTeam, "army") or string.find(myTeam, "border")
-		local isTargetGov = string.find(pTeam, "police") or string.find(pTeam, "fbi") or string.find(pTeam, "swat") or string.find(pTeam, "army") or string.find(pTeam, "border")
-		if isMyGov and isTargetGov then return false end
+	-- Проверка на команду
+	local function checkTeam(player)
+		if not teamCheckActive then return true end
+		if player.Team and LocalPlayer.Team and player.Team == LocalPlayer.Team then
+			return false
+		end
 		return true
 	end
 
-	-- Поиск лучшей цели (Игроки + NPC)
+	-- Логика поиска цели внутри круга (FOV)
 	local function getBestTarget()
-		local refPoint
-		if followMouseMode then
-			refPoint = UserInputService:GetMouseLocation()
-		else
-			refPoint = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
-		end
-
+		local screenCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
 		local bestTarget = nil
 		local shortestDist = fovRadius
+		local myChar = LocalPlayer.Character
+		local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
 
-		-- 1. Игроки
+		if not myRoot then return nil end
+
 		for _, player in ipairs(Players:GetPlayers()) do
-			if isEnemyPlayer(player) and player.Character then
+			if player ~= LocalPlayer and checkTeam(player) and player.Character then
 				local char = player.Character
 				local humanoid = char:FindFirstChildOfClass("Humanoid")
-				local head = char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart")
+				local head = char:FindFirstChild("Head")
 
 				if humanoid and humanoid.Health > 0 and head then
-					local screenPos, onScreen = camera:WorldToViewportPoint(head.Position)
-					if onScreen then
-						local screenDist = (Vector2.new(screenPos.X, screenPos.Y) - refPoint).Magnitude
-						if screenDist < shortestDist then
-							local origin = camera.CFrame.Position
-							local direction = (head.Position - origin)
-							local rayParams = RaycastParams.new()
-							rayParams.FilterType = Enum.RaycastFilterType.Blacklist
-							rayParams.FilterDescendantsInstances = {LocalPlayer.Character}
+					local distance = (head.Position - myRoot.Position).Magnitude
+					if distance <= maxAimDistance then
+						local screenPos, onScreen = camera:WorldToViewportPoint(head.Position)
+						if onScreen then
+							local screenPoint2D = Vector2.new(screenPos.X, screenPos.Y)
+							local screenDist = (screenPoint2D - screenCenter).Magnitude
 							
-							local result = workspace:Raycast(origin, direction, rayParams)
-							if not result or result.Instance:IsDescendantOf(char) then
-								shortestDist = screenDist
-								bestTarget = head
+							if screenDist <= fovRadius and screenDist < shortestDist then
+								-- WALL CHECK (Проверка стен)
+								local passesWallCheck = true
+								if wallCheckActive then
+									local origin = camera.CFrame.Position
+									local direction = (head.Position - origin)
+									local rayParams = RaycastParams.new()
+									rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+									rayParams.FilterDescendantsInstances = {myChar, char}
+									
+									local result = workspace:Raycast(origin, direction, rayParams)
+									if result then
+										passesWallCheck = false
+									end
+								end
+
+								if passesWallCheck then
+									shortestDist = screenDist
+									bestTarget = head
+								end
 							end
 						end
 					end
 				end
 			end
 		end
-
-		-- 2. NPC
-		for _, obj in ipairs(workspace:GetDescendants()) do
-			if obj:IsA("Model") and obj ~= LocalPlayer.Character then
-				local humanoid = obj:FindFirstChildOfClass("Humanoid")
-				local head = obj:FindFirstChild("Head") or obj:FindFirstChild("HumanoidRootPart")
-				if humanoid and humanoid.Health > 0 and head and not Players:GetPlayerFromCharacter(obj) then
-					local screenPos, onScreen = camera:WorldToViewportPoint(head.Position)
-					if onScreen then
-						local screenDist = (Vector2.new(screenPos.X, screenPos.Y) - refPoint).Magnitude
-						if screenDist < shortestDist then
-							local origin = camera.CFrame.Position
-							local direction = (head.Position - origin)
-							local rayParams = RaycastParams.new()
-							rayParams.FilterType = Enum.RaycastFilterType.Blacklist
-							rayParams.FilterDescendantsInstances = {LocalPlayer.Character}
-							
-							local result = workspace:Raycast(origin, direction, rayParams)
-							if not result or result.Instance:IsDescendantOf(obj) then
-								shortestDist = screenDist
-								bestTarget = head
-							end
-						end
-					end
-				end
-			end
-		end
-
 		return bestTarget
 	end
 
-	-- Наведение Aimbot
+	-- Наведение при зажатии ЛКМ или касании экрана
 	RunService.RenderStepped:Connect(function()
 		if aimbotActive then
-			if followMouseMode then
-				local mPos = UserInputService:GetMouseLocation()
-				fovGui.Position = UDim2.new(0, mPos.X, 0, mPos.Y)
-			else
-				fovGui.Position = UDim2.new(0.5, 0, 0.5, 0)
-			end
+			local isPressed = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) 
+				or UserInputService:IsMouseButtonPressed(Enum.UserInputType.Touch)
 
-			local targetHead = getBestTarget()
-			if targetHead and (UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or UserInputService:IsMouseButtonPressed(Enum.UserInputType.Touch)) then
-				local targetCFrame = CFrame.new(camera.CFrame.Position, targetHead.Position)
-				camera.CFrame = camera.CFrame:Lerp(targetCFrame, 1 / math.max(aimSmooth, 1))
+			if isPressed then
+				local targetHead = getBestTarget()
+				if targetHead then
+					local targetCFrame = CFrame.new(camera.CFrame.Position, targetHead.Position)
+					camera.CFrame = camera.CFrame:Lerp(targetCFrame, aimSensitivity)
+				end
 			end
 		end
 	end)
 
-	-- Мобильный пульт
 	local mobileControlGui = Instance.new("Frame", screenGui)
 	mobileControlGui.Size = UDim2.new(0, 160, 0, 160)
 	mobileControlGui.Position = UDim2.new(1, -190, 1, -340)
@@ -656,7 +651,6 @@ task.spawn(function()
 		end
 	end)
 
-	-- Логика полёта
 	local flyActive = false
 	local attachment, linearVelocity, alignOrientation
 	local function toggleFly()
