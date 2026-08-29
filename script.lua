@@ -1,6 +1,6 @@
 -- ==========================================
 -- НАСТРОЙКА КЛЮЧА И НАЗВАНИЯ
-local SECRET_KEY = "Zolo"
+local SECRET_KEY = "A"
 -- ==========================================
 
 task.spawn(function()
@@ -103,6 +103,7 @@ task.spawn(function()
 	keyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 	keyBox.Font = Enum.Font.Gotham
 	keyBox.TextSize = 13
+	keyBox.ClearTextOnFocus = false
 	keyBox.Parent = keyFrame
 	Instance.new("UICorner", keyBox).CornerRadius = UDim.new(0, 8)
 
@@ -144,10 +145,10 @@ task.spawn(function()
 	Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
 	applyRGB(Instance.new("UIStroke", mainFrame, {Thickness = 2}))
 
-	-- Компактная правая панель More (высота значительно уменьшена)
+	-- Компактная правая панель More
 	local moreFrame = Instance.new("Frame")
-	moreFrame.Size = UDim2.new(0, 210, 0, 320)
-	moreFrame.Position = UDim2.new(0.5, 115, 0.5, -160)
+	moreFrame.Size = UDim2.new(0, 210, 0, 360)
+	moreFrame.Position = UDim2.new(0.5, 115, 0.5, -180)
 	moreFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 	moreFrame.BorderSizePixel = 0
 	moreFrame.Active = true
@@ -318,7 +319,7 @@ task.spawn(function()
 	end)
 
 	-- ==========================================
-	-- КОМПАКТНОЕ МЕНЮ MORE (ESP + AIMBOT + СЛАЙДЕРЫ)
+	-- КОМПАКТНОЕ МЕНЮ MORE (ESP + AIMBOT + CFSPEED)
 	-- ==========================================
 	local moreTitle = Instance.new("TextLabel", moreFrame)
 	moreTitle.Size = UDim2.new(1, 0, 0, 20)
@@ -388,6 +389,7 @@ task.spawn(function()
 	local fovRadius = 150
 	local maxAimDistance = 500
 	local aimSensitivity = 0.2
+	local cfSpeedVal = 0 
 	local camera = workspace.CurrentCamera
 
 	-- КРУГ (FOV CIRCLE) ПО ЦЕНТРУ ЭКРАНА
@@ -448,7 +450,7 @@ task.spawn(function()
 		end
 	end)
 
-	-- ФУНКЦИЯ СОЗДАНИЯ УДОБНОГО ПОЛЗУНКА (СЛАЙДЕРА)
+	-- ФУНКЦИЯ СОЗДАНИЯ ПОЛЗУНКА (СЛАЙДЕРА)
 	local function createSlider(name, minVal, maxVal, startVal, yPos, callback)
 		local label = Instance.new("TextLabel", moreFrame)
 		label.Size = UDim2.new(1, -16, 0, 14)
@@ -502,7 +504,7 @@ task.spawn(function()
 		end)
 	end
 
-	-- Слайдеры взамен кнопок
+	-- Слайдеры для Aimbot
 	createSlider("FOV Radius", 25, 400, fovRadius, 122, function(val)
 		fovRadius = val
 		fovGui.Size = UDim2.new(0, fovRadius * 2, 0, fovRadius * 2)
@@ -514,6 +516,11 @@ task.spawn(function()
 
 	createSlider("Max Distance", 50, 2000, maxAimDistance, 202, function(val)
 		maxAimDistance = val
+	end)
+
+	-- СЛАЙДЕР CFSPEED (ОТ 0 ДО 200) С РАБОЧИМ МЕТОДОМ
+	createSlider("cfspeed", 0, 200, cfSpeedVal, 242, function(val)
+		cfSpeedVal = val
 	end)
 
 	aimBtn.InputBegan:Connect(function(input)
@@ -599,6 +606,19 @@ task.spawn(function()
 					local targetCFrame = CFrame.new(camera.CFrame.Position, targetHead.Position)
 					camera.CFrame = camera.CFrame:Lerp(targetCFrame, aimSensitivity)
 				end
+			end
+		end
+	end)
+
+	-- РАБОЧИЙ МЕТОД CFSPEED
+	RunService.RenderStepped:Connect(function()
+		if cfSpeedVal > 0 and LocalPlayer.Character then
+			local char = LocalPlayer.Character
+			local humanoid = char:FindFirstChildOfClass("Humanoid")
+			local rootPart = char:FindFirstChild("HumanoidRootPart")
+			
+			if humanoid and rootPart and humanoid.MoveDirection.Magnitude > 0 then
+				rootPart.CFrame = rootPart.CFrame + (humanoid.MoveDirection * (cfSpeedVal / 100))
 			end
 		end
 	end)
